@@ -1,0 +1,12 @@
+{
+  "name": "caprank",
+  "private": true,
+  "type": "module",
+  "description": "CapRank — largest companies ranked by market cap. Zero-dependency static site.",
+  "scripts": {
+    "fetch": "node scripts/fetch.mjs",
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs && npx --yes serve@14.2.4 dist"
+  },
+  "engines": { "node": ">=20" }
+}
