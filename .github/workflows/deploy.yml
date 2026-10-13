@@ -7,7 +7,7 @@ on:
     - cron: "0 3 * * *"
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 concurrency: { group: pages, cancel-in-progress: true }
@@ -16,20 +16,22 @@ jobs:
     runs-on: ubuntu-latest
     environment: { name: github-pages, url: "${{ steps.d.outputs.page_url }}" }
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with: { node-version: 22 }
+      - uses: actions/cache@v4
+        with:
+          path: data/profiles.json
+          key: profiles-${{ github.run_id }}
+          restore-keys: profiles-
       - run: npm run fetch
+        env: { PROFILE_LIMIT: 400 }
       - run: npm run build
         env:
           ADSENSE_CLIENT: ${{ vars.ADSENSE_CLIENT }}
           BROKER_URL: ${{ vars.BROKER_URL }}
           PRO_URL: ${{ vars.PRO_URL }}
           SITE_URL: ${{ vars.SITE_URL }}
-      - name: Commit refreshed quotes
-        run: |
-          git config user.name "caprank-bot"; git config user.email "actions@users.noreply.github.com"
-          git add data/quotes.json && git commit -m "data: refresh quotes [skip ci]" && git push || true
       - uses: actions/upload-pages-artifact@v3
         with: { path: dist }
       - id: d
